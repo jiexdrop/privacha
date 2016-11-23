@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--Tutorial followed https://openclassrooms.com/courses/des-applications-ultra-rapides-avec-node-js/socket-io-passez-au-temps-reel-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>privacha</title>
+    </head>
+
+    <body>
+        <h1>privacha</h1>
+
+        <!-- INPUTS -->
+        <p><input type="label" id="psuedoLabel"/><input type="button" value="Envoi" id="define" /></p>
+        <div id="messages"></div>
+        <p><input type="label" id="inputLabel" style="display:none;"/><input type="button" value="Envoi" id="send" style="display:none;"/></p>
+
+
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+
+        <script>
+            //Our socket
+            var socket;
+            (window.location.hostname != "localhost") ? socket = io(window.location.hostname) : socket = io();
+
+            $('#define').click(function () {
+                var pseudo = $('#psuedoLabel').val();
+                //remove tags
+                pseudo.replace(/(<([^>]+)>)/ig,"");
+                socket.emit('messagePsuedo', pseudo);
+                $( '#psuedoLabel' ).remove();
+                $( '#define' ).remove();
+
+                //when psuedo defined then show the label
+                $("#inputLabel").show();
+                $("#send").show();
+            })
+
+            // Show the messages after the last with jquery
+            socket.on('message', function(message) {
+                $('#messages').after('<p>'+ message + '</p>');
+            })
+
+            // We send to the server a message and we trow it in our chat
+            $('#send').click(function () {
+                var message = $('#inputLabel').val();
+                //remove tags
+                message.replace(/(<([^>]+)>)/ig,"");
+
+                $('#messages').after('<p> Moi: ' + message + '</p>');
+                socket.emit('message', message);
+            })
+        </script>
+    </body>
+</html>
